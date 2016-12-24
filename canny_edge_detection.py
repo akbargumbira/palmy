@@ -5,7 +5,7 @@ import numpy as np
 
 class CannyEdgeDetection(object):
     MINIMUM_THRESHOLD = 50
-    MAXIMUM_THRESHOLD = 100
+    MAXIMUM_THRESHOLD = 200
 
     def __init__(self, img_src):
         self._img_src = img_src
