@@ -18,7 +18,7 @@ def extract_image(input_image):
     palm_contour = sorted(contours, key=cv2.contourArea, reverse=True)[0]
 
     # Approximate for better contour
-    epsilon = 0.001*cv2.arcLength(palm_contour, True)
+    epsilon = 0.002*cv2.arcLength(palm_contour, True)
     palm_contour = cv2.approxPolyDP(palm_contour, epsilon, True)
 
     return palm_contour

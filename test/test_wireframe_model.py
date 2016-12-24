@@ -7,16 +7,16 @@ size = im.shape
 
 # Fingers
 finger_locations = np.array([
-    (10, 400),  # Thumb
-    (222, 55),  # Index
-    (360, 15),  # Middle
-    (465, 50),  # Ring
-    (570, 157),  # Baby
+    (10, 325),  # Thumb
+    (191, 43),  # Index
+    (303, 11),  # Middle
+    (379, 44),  # Ring
+    (471, 137),  # Baby
 ], dtype="double")
 
 # Palm
-palm_center = (375, 420)
-palm_size = 260
+palm_center = (300, 340)
+palm_size = 230
 # Draw palm center
 cv2.circle(im, (int(palm_center[0]), int(palm_center[1])), 3, (0, 0, 255), -1)
 # Draw palm boundaries
