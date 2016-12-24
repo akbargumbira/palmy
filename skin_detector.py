@@ -3,7 +3,7 @@ import cv2
 
 
 def detect_skin(input_image):
-    lower = np.array([0, 48, 20], dtype="uint8")
+    lower = np.array([0, 40, 20], dtype="uint8")
     upper = np.array([20, 255, 255], dtype="uint8")
 
     converted = cv2.cvtColor(input_image, cv2.COLOR_BGR2HSV)
