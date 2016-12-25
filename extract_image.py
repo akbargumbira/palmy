@@ -28,7 +28,7 @@ def extract_image(input_image):
     fingertips, gaps = get_fingertips(palm_contour, input_image)
 
     # Get the palm center
-    palm_center = find_palm_center(palm_contour, gaps)
+    palm_center = find_palm_center(input_image, palm_contour, gaps)
 
     # Palm radius (the center is better from above)
     (_, _), radius = cv2.minEnclosingCircle(np.asarray(gaps))
@@ -39,37 +39,28 @@ def extract_image(input_image):
     return palm_contour, palm_center, palm_size, fingertips
 
 
-def find_palm_center(palm_contour, gaps):
-    """Adapted from https://github.com/VasuAgrawal/GestureDetection/blob/master
-    /current_src/GesturesApi.py."""
+def find_palm_center(input_image, palm_contour, gaps):
     M = cv2.moments(palm_contour)
     moment = (int(M['m10']/M['m00']), int(M['m01']/M['m00']))
+    center = moment
+    cv2.circle(input_image, center, 5, (0, 255, 0), 5)
     # Create bounding with center the max_point and find better center
-    scale_factor = 0.3
-    shrunk = np.array(palm_contour * scale_factor, dtype=np.int32)
-    tx, ty, w, h = cv2.boundingRect(shrunk)
-    max_point = None
-    max_radius = 0
-    for x in xrange(w):
-        for y in xrange(h):
-            rad = cv2.pointPolygonTest(shrunk, (tx + x, ty + y), True)
-            if rad > max_radius:
-                max_point = (tx + x, ty + y)
-                max_radius = rad
+    kernel_size = 5
+    center_moved = True
+    max_distance = 0
+    while center_moved:
+        for x in range((-kernel_size+1)/2, (kernel_size+1)/2):
+            for y in range((-kernel_size+1)/2, (kernel_size+1)/2):
+                dist = cv2.pointPolygonTest(
+                    palm_contour, (center[0]+x, center[1]+y), True)
+                if dist > max_distance:
+                    max_distance = dist
+                    max_point = (center[0]+x, center[1]+y)
+        center_moved = center != max_point
+        center = max_point
+        cv2.circle(input_image, center, 2, (255, 255, 255), 2)
 
-    real_center = np.array(np.array(max_point) / scale_factor, dtype=np.int32)
-    error = int((1 / scale_factor) * 1.5)
-    max_point = None
-    max_radius = 0
-    for x in xrange(real_center[0] - error, real_center[0] + error):
-        for y in xrange(real_center[1] - error, real_center[1] + error):
-            rad = cv2.pointPolygonTest(palm_contour, (x, y), True)
-            if rad > max_radius:
-                max_point = (x, y)
-                max_radius = rad
-
-    return (max_point[0]+moment[0])/2, (max_point[1]+moment[1])/2
-
+    return center
 
 def angle(s, f, e):
     sf = math.hypot(f[0]-s[0], f[1]-s[1])
