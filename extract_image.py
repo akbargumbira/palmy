@@ -3,37 +3,43 @@ import math
 import cv2
 import numpy as np
 from skin_detector import detect_skin
+from parametrized_canny import parametrized_canny
 import sys
 
 
 def extract_image(input_image):
     # Just use the skin
-    skin_image = detect_skin(input_image)
+    image = detect_skin(input_image)
 
-    # Get canny edges from the skin image
-    # i_im = cv2.Canny(im, 50, 200)
+    # Use canny (alternative)
+    # image = parametrized_canny(input_image)
 
     # Find contours, get the largest one
     #  TODO: I should consider taking more than 1 contours (because there
     #       could be more than 1 palm in the image)
-    (_, contours, _) = cv2.findContours(
-        skin_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    (_, contours, _) = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     palm_contour = sorted(contours, key=cv2.contourArea, reverse=True)[0]
 
     # Approximate for better contour
     epsilon = 0.0015*cv2.arcLength(palm_contour, True)
     palm_contour = cv2.approxPolyDP(palm_contour, epsilon, True)
 
-    # Get the palm center
-    palm_center = find_palm_center(palm_contour)
-    palm_size = 2 * cv2.pointPolygonTest(palm_contour, palm_center, True)
-
     # Get fingertips
-    fingertips = get_fingertips(palm_contour, input_image)
+    fingertips, gaps = get_fingertips(palm_contour, input_image)
+
+    # Get the palm center
+    palm_center = find_palm_center(palm_contour, gaps)
+
+    # Palm radius (the center is better from above)
+    (_, _), radius = cv2.minEnclosingCircle(np.asarray(gaps))
+    radius = int(radius)
+    cv2.circle(input_image, palm_center, radius, (0, 255, 0), 2)
+    palm_size = 2 * radius
+
     return palm_contour, palm_center, palm_size, fingertips
 
 
-def find_palm_center(palm_contour):
+def find_palm_center(palm_contour, gaps):
     """Adapted from https://github.com/VasuAgrawal/GestureDetection/blob/master
     /current_src/GesturesApi.py."""
     M = cv2.moments(palm_contour)
@@ -87,6 +93,7 @@ def get_fingertips(palm_contour, im):
     max_angle = 100
 
     fingertips = []
+    gaps = []
     min_x_fingertips = sys.maxint
     last_fingertips = (0, 0)
     for i in range(defects.shape[0]):
@@ -103,15 +110,18 @@ def get_fingertips(palm_contour, im):
         good_angle = min_angle < angle_esf and angle_esf < max_angle
 
         good_finger_defects = good_sf and good_ef and good_angle
+        if good_sf and good_ef:
+            gaps.append(far)
+
         if good_finger_defects:
             fingertips.append(start)
             # cv2.line(im, start, far, (255, 0, 0), 3)
             # cv2.line(im, far, end, (255, 0, 0), 3)
-            # cv2.circle(im, far, 5, (255, 255, 255), 5)
+            cv2.circle(im, far, 5, (255, 255, 255), 5)
 
             if start[0] < min_x_fingertips:
                 min_x_fingertips = start[0]
                 last_fingertips = end
 
     fingertips.append(last_fingertips)
-    return fingertips
+    return fingertips, gaps
