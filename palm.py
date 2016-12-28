@@ -1,7 +1,7 @@
 # coding=utf-8
 import math
 import cv2
-from utilities import rotate_points
+from utilities import rotate_points, rotate_point
 
 class Palm(object):
     def __init__(
@@ -36,6 +36,8 @@ class Palm(object):
         palm_center_bottom = (
             self.palm_center[0],
             self.palm_center[1] + int(self.palm_height/2))
+        palm_center_bottom = rotate_point(
+            palm_center_bottom, self.palm_center, self.palm_rotation)
         for finger in self.fingertips_location:
             cv2.circle(image, finger, 3, (255, 255, 255), -1)
             cv2.line(image, palm_center_bottom, finger, (255, 255, 255), 2)

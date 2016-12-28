@@ -26,10 +26,10 @@ def extract_image(input_image):
     palm_contour = cv2.approxPolyDP(palm_contour, epsilon, True)
 
     # Extract palm features from palm contour
-    fingertips, palm_center, gaps, palm_size = extract_palm_features(
+    fingertips, palm_center, gaps, radius, rotation = extract_palm_features(
         input_image, palm_contour)
 
-    return palm_contour, palm_center, palm_size, fingertips
+    return palm_contour, palm_center, radius, fingertips, rotation
 
 
 def extract_palm_features(input_image, palm_contour):
@@ -116,9 +116,11 @@ def extract_palm_features(input_image, palm_contour):
     # Get palm radius (the center is better from above)
     (_, _), radius = cv2.minEnclosingCircle(np.asarray(gaps))
     radius = int(radius)
-    palm_size = 2 * radius
 
-    return fingertips, palm_center, gaps, palm_size
+    # Get palm rotation from the thumb angle
+    palm_rotation = int(angles360[idx[0]])
+
+    return fingertips, palm_center, gaps, radius, palm_rotation
 
 
 def find_palm_center(palm_contour):
