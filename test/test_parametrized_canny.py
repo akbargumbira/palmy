@@ -3,14 +3,17 @@ import numpy as np
 import cv2
 from parametrized_canny import parametrized_canny
 
-im1 = cv2.imread("my_palm.jpg")
-im2 = cv2.imread("my_palm2.jpg")
-im3 = cv2.imread("palm1.jpg")
-im4 = cv2.imread("palm2.jpg")
+# Read Image
+images = []
+for i in range(9):
+    img_src = 'images/test_palm%s.jpg' % (i + 1)
+    image = cv2.resize(cv2.imread(img_src), (300, 300))
+    canny = parametrized_canny(image)
+    images.append(canny)
 
-im1 = parametrized_canny(im1)
-im2 = parametrized_canny(im2)
-im3 = parametrized_canny(im3)
-im4 = parametrized_canny(im4)
-cv2.imshow("images", np.hstack([im1, im2, im3, im4]))
+cv2.imshow("images", np.vstack(
+    [np.hstack([images[0],images[1],images[2]]),
+     np.hstack([images[3],images[4],images[5]]),
+     np.hstack([images[6],images[7],images[8]])]))
+
 cv2.waitKey(0)

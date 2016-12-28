@@ -5,7 +5,7 @@ from extract_image import extract_image
 
 images = []
 for i in range(9):
-    img_src = 'test_palm%s.jpg' % (i+1)
+    img_src = 'images/test_palm%s.jpg' % (i+1)
     im = cv2.resize(cv2.imread(img_src), (300, 300))
     palm_contour, palm_center, palm_size, fingertips = extract_image(im)
     # cv2.drawContours(im, [palm_contour], -1, (0, 255, 0), 3)

@@ -4,15 +4,15 @@ import cv2
 from skin_detector import detect_skin
 
 # Read Image
-im1 = cv2.resize(cv2.imread("test_palm1.jpg"), (300, 300))
-im2 = cv2.resize(cv2.imread("test_palm2.jpg"), (300, 300))
-im3 = cv2.resize(cv2.imread("test_palm3.jpg"), (300, 300))
-im4 = cv2.resize(cv2.imread("test_palm4.jpg"), (300, 300))
-im5 = cv2.resize(cv2.imread("test_palm5.jpg"), (300, 300))
-skin1 = detect_skin(im1)
-skin2 = detect_skin(im2)
-skin3 = detect_skin(im3)
-skin4 = detect_skin(im4)
-skin5 = detect_skin(im5)
-cv2.imshow("images", np.hstack([skin1, skin2, skin3, skin4, skin5]))
+images = []
+for i in range(9):
+    img_src = 'images/test_palm%s.jpg' % (i + 1)
+    image = cv2.resize(cv2.imread(img_src), (300, 300))
+    skin = detect_skin(image)
+    images.append(skin)
+
+cv2.imshow("images", np.vstack(
+    [np.hstack([images[0],images[1],images[2]]),
+     np.hstack([images[3],images[4],images[5]]),
+     np.hstack([images[6],images[7],images[8]])]))
 cv2.waitKey(0)

@@ -4,6 +4,7 @@ import cv2
 
 
 def detect_skin(input_image):
+    """Detec skin from given image."""
     lower = np.array([0, 40, 120], dtype="uint8")
     upper = np.array([180, 255, 255], dtype="uint8")
 

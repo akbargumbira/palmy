@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Read Image
-im = cv2.imread("my_palm.jpg")
+im = cv2.imread("images/palm_model.jpg")
 size = im.shape
 
 # Fingers
