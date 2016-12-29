@@ -2,14 +2,19 @@
 import math
 from palm import Palm, PalmModel
 from extract_image import extract_image
+from utilities import rotate_points, rotate_point
 
 
 def iterative_map(image):
     palm_contour, palm_center, palm_radius, fingertips, rotation = extract_image(image)
     observed_palm = Palm(fingertips, palm_center, palm_radius, rotation)
-    final_hypothesis = PalmModel
+    # Rotate first the model for faster projection
+    r_fingertips = rotate_points(
+        PalmModel.fingertips_location, PalmModel.palm_center, rotation)
+    final_hypothesis = Palm(r_fingertips, PalmModel.palm_center,
+                            PalmModel.palm_radius, rotation)
     post = posterior(observed_palm, final_hypothesis)
-    min_posterior = 100
+    min_posterior = 80
     while post > min_posterior:
         adm_hypothesis = admissible_instantiations(final_hypothesis)
         for hypothesis in adm_hypothesis:
