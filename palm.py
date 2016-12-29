@@ -1,7 +1,7 @@
 # coding=utf-8
-import math
 import cv2
 from utilities import rotate_points, rotate_point
+
 
 class Palm(object):
     def __init__(
